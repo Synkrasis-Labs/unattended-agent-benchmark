@@ -3370,7 +3370,7 @@ wheels = [
 [[package]]
 name = "unattended-agent-benchmark"
 version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "meta-agents-research-environments" },
 ]

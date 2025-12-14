@@ -1,6 +1,7 @@
 from core.monkey_patch import MonkeyPatch
 from core.system_prompt import build_system_prompt
 
+
 class SimpleChatTools:
 
     @staticmethod

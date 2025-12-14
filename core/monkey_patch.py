@@ -1,15 +1,18 @@
 from typing import Any, NamedTuple, TypeVar
-from are.simulation.agents.agent_log import LLMOutputThoughtActionLog, ThoughtLog
+
 from are.simulation.agents.are_simulation_agent import RunnableARESimulationAgent
-from are.simulation.agents.are_simulation_agent_config import LLMEngineConfig, MainAgentConfig, RunnableARESimulationAgentConfig
+from are.simulation.agents.are_simulation_agent_config import (
+    LLMEngineConfig,
+    MainAgentConfig,
+    RunnableARESimulationAgentConfig,
+)
 from are.simulation.agents.llm.types import MessageRole
-from are.simulation.environment import EnvironmentConfig
+from are.simulation.environment import Environment, EnvironmentConfig, EnvironmentType
 from are.simulation.exceptions import InvalidActionAgentError
 from are.simulation.scenario_runner import ScenarioRunner
-from are.simulation.scenarios.scenario_tutorial.scenario import ScenarioTutorial as DummyScenario
-from are.simulation.environment import Environment, EnvironmentType
-from .system_prompt import SYSTEM_PROMPT
 from are.simulation.types import SimulatedGenerationTimeConfig
+
+from .system_prompt import SYSTEM_PROMPT
 
 Agent = TypeVar("Agent", bound=Any)
 Prompt = TypeVar("Prompt", bound=list[dict[str, str]])
