@@ -1,0 +1,24 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "unattended-agent-benchmark"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "meta-agents-research-environments",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["core", "scripts"]
+
+[tool.uv.workspace]
+members = [
+    "meta-agents-research-environments",
+]
+
+[tool.uv.sources]
+meta-agents-research-environments = { workspace = true, editable = true }
