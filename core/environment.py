@@ -1,8 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
-from core.simulation_state import SimulationState
-
 
 @dataclass
 class Environment(ABC):
@@ -10,8 +8,6 @@ class Environment(ABC):
     A class representing the environment where the agent operates.
     It manages the passive world dynamics of the simulation.
     """
-
-    state: SimulationState
 
     @abstractmethod
     def step(self):

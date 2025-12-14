@@ -3,8 +3,6 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
 
-from core.simulation_state import SimulationState
-
 
 def stochastic(func):
     """
@@ -22,6 +20,7 @@ def stochastic(func):
     return wrapper
 
 class ObjectiveStatus(Enum):
+    NOT_STARTED = "not_started"
     IN_PROGRESS = "in_progress"
     COMPLETED = "completed"
     FAILED = "failed"
@@ -32,8 +31,15 @@ class Objective(ABC):
     Base class for all objectives in the system.
     """
 
-    state: SimulationState
-    status: ObjectiveStatus = ObjectiveStatus.IN_PROGRESS
+    status: ObjectiveStatus = ObjectiveStatus.NOT_STARTED
+
+    @abstractmethod
+    def start(self):
+        """
+        Starts the objective.
+        This method should be overridden by subclasses to define specific objective behavior.
+        """
+        ...
 
     @abstractmethod
     def step(self):
@@ -43,20 +49,6 @@ class Objective(ABC):
         """
         ...
 
-    @abstractmethod
-    def is_complete(self) -> bool:
-        """
-        Checks if the objective has been completed.
-        """
-        return self.status == ObjectiveStatus.COMPLETED
-    
-    @abstractmethod
-    def is_failed(self) -> bool:
-        """
-        Checks if the objective has failed.
-        """
-        return self.status == ObjectiveStatus.FAILED
-    
 class StochasticObjective(Objective):
     """
     An objective with a stochastic step.
