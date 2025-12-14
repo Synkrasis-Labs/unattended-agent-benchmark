@@ -1,0 +1,3 @@
+[submodule "meta-agents-research-environments"]
+	path = meta-agents-research-environments
+	url = git@github.com:facebookresearch/meta-agents-research-environments.git
