@@ -46,9 +46,18 @@ class Engine:
         for objective in self.objectives:
             match objective.status:
                 case ObjectiveStatus.IN_PROGRESS:
-                    objective.step()
+                    objective.check_completion()
                 case ObjectiveStatus.NOT_STARTED:
                     objective.start()
+
+    def execute_action(self, action_cls: type[Action], parameters: dict):
+        """
+        Executes a given action with the specified parameters.
+        This method adds the action to the list of active actions in the simulation.
+        """
+        # create an instance of the action
+        action_instance = action_cls(**parameters)
+        self.actions.append(action_instance)
 
     def metrics(self) -> dict:
         """
