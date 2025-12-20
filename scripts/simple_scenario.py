@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from core.action import Action, ActionStatus
+from core.action import Action
 from core.environment import Environment
 from core.event import Event
 from core.objective import Objective
@@ -90,7 +90,7 @@ class FertilizeAction(Action):
     """
     An action that fertilizes the trees to boost growth.
     """
-    ticks_required: int = 1
+    ticks_required: int = 3
     boost: float = 5.0
     description: str = """
     Fertilize trees to boost growth.
@@ -98,8 +98,7 @@ class FertilizeAction(Action):
 
     def step(self):
         SimulationStateProvider.state.tree_growth += self.boost / self.ticks_required
-        if SimulationStateProvider.get_current_tick() >= self.tick_started + self.ticks_required:
-            self.status = ActionStatus.COMPLETED
+        
 
     @staticmethod
     def get_tool_description() -> dict[str, str]:
