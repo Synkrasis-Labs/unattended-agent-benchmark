@@ -27,6 +27,10 @@ class Action(ABC):
     tick_completed: int | None = None
     tick_stopped: int | None = None
 
+    # Concurrency controls
+    concurrency_tag: str | None = None  # Actions with the same tag are mutually exclusive
+    priority: int = 0                   # Higher numbers preempt lower-priority actions
+
     def start(self):
         """
         Initiates the action.

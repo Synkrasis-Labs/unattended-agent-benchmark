@@ -38,11 +38,13 @@ class Engine:
                         action.complete()
                 case ActionStatus.NOT_STARTED:
                     action.start()
-            print("==== Actions ====")
-            print(current_tick)
+            print("==== Action ====")
+            print("Current Tick: "+ str(current_tick))
             print(action.get_tool_description)
-            print(action.tick_started)
-            print(action.tick_completed)
+            print("Started: "+ str(action.tick_started))
+            print("Completed: "+ str(action.tick_completed))
+            print("Stopped: "+ str(action.tick_stopped))
+            print("Priority: "+ str(action.priority))
             print("==== ====")
 
         # 3. Advance events and objectives
@@ -72,7 +74,37 @@ class Engine:
         """
         # create an instance of the action
         action_instance = action_cls(**parameters)
+
+        # Determine whether the new action can run alongside current actions
+        conflicting_actions = [
+            action for action in self.actions if action.status is ActionStatus.IN_PROGRESS
+            and self._can_run_simultaneously(action, action_instance)
+        ]
+        print("Conflicting Actions:")
+        print(conflicting_actions)
+        if not conflicting_actions:
+            self.actions.append(action_instance)
+            return
+
+        highest_conflict_priority = max(action.priority for action in conflicting_actions)
+        print("Highest Conflict Priority: "+ str(highest_conflict_priority))
+        print("Action Instance Priority: "+ str(action_instance.priority))
+        if highest_conflict_priority >= action_instance.priority:
+            # Existing actions of higher or equal priority keep running; discard the new one
+            return
+
+        # New action preempts lower-priority conflicting actions
+        for action in conflicting_actions:
+            action.stop()
+
         self.actions.append(action_instance)
+
+    @staticmethod
+    def _can_run_simultaneously(action_a: Action, action_b: Action) -> bool:
+        """Checks if two actions can run at the same time based on their group tags."""
+        if action_a.concurrency_tag is None or action_b.concurrency_tag is None:
+            return True
+        return action_a.concurrency_tag != action_b.concurrency_tag
 
     def metrics(self) -> dict:
         """

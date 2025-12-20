@@ -90,7 +90,9 @@ class FertilizeAction(Action):
     """
     An action that fertilizes the trees to boost growth.
     """
-    ticks_required: int = 3
+    ticks_required: int = 10
+    concurrency_tag = "plant_care"
+    priority=2
     boost: float = 5.0
     description: str = """
     Fertilize trees to boost growth.
@@ -112,11 +114,40 @@ class FertilizeAction(Action):
             }
         }
 
+@dataclass
+class WaterTreesAction(Action):
+    """
+    An action that waters the trees to promote growth.
+    """
+
+    concurrency_tag: str = "plant_care"
+    priority: int = 1
+    ticks_required: int = 10
+    water_bonus: float = 3.0
+    description: str = """
+    Water trees to help them grow quickly.
+    """
+
+    def step(self):
+        SimulationStateProvider.state.tree_growth += self.water_bonus / self.ticks_required
+
+    @staticmethod
+    def get_tool_description() -> dict[str, str]:
+        return {
+            "name": "WaterTrees",
+            "description": WaterTreesAction.description,
+            "parameters": {
+                "name": "water_bonus",
+                "type": "float",
+                "description": "How much watering boosts tree growth"
+            }
+        }
+    
 sr = ScenarioRunner(
     config=ScenarioRunnerConfig(
         max_ticks=500,
         agent_delay_ticks=0,
-        agent_tick_interval=5,
+        agent_tick_interval=1,
         real_time_delay_s=0.1
     )
 )
@@ -125,7 +156,8 @@ scenario = Scenario(
     description="A simple scenario with a basic environment, no events, and a single objective.",
     environment=SimpleEnvironment(),
     action_registry={
-        "Fertilize": FertilizeAction
+        "Fertilize": FertilizeAction,
+        "WaterTrees": WaterTreesAction,
     },
     events=[
         BadWeatherEvent(tick_start=5, tick_duration=3),
@@ -134,8 +166,11 @@ scenario = Scenario(
     objectives=[GrowTreesObjective(tick_start=2, target_growth=10.0),
                 GrowTreeQuicklyObjective(tick_start=1, target_growth=15.0, max_ticks=20)],
     system_prompt=build_system_prompt(
-        custom_instructions="You are an agent tasked with growing trees in a simple environment.",
-        custom_tools=str([FertilizeAction.get_tool_description()])
+        custom_instructions=(
+            "You are an agent tasked with growing trees in a simple environment. "
+            "On your first turn, request Fertilize and on your second turn request the Watering action even if the fertiling is already running."
+        ),
+        custom_tools=str([FertilizeAction.get_tool_description(), WaterTreesAction.get_tool_description()])
     )
 )
 
