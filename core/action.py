@@ -22,13 +22,10 @@ class Action(ABC):
     description: str            # A brief description of the action
 
     ticks_required: int = 1     # Number of time steps required to complete the action
-    
-    tick_started: int = 0       # The tick at which the action was started - set in __post_init__
     status: ActionStatus = ActionStatus.NOT_STARTED
-
-
-    def __post_init__(self):
-        self.tick_started = SimulationStateProvider.state.current_tick
+    tick_started: int | None = None
+    tick_completed: int | None = None
+    tick_stopped: int | None = None
 
     def start(self):
         """
@@ -36,6 +33,8 @@ class Action(ABC):
         This method can be overridden by subclasses to define specific start behavior.
         """
         self.status = ActionStatus.IN_PROGRESS
+        if self.tick_started is None:
+            self.tick_started = SimulationStateProvider.get_current_tick()
 
     def stop(self):
         """
@@ -43,6 +42,7 @@ class Action(ABC):
         This method can be overridden by subclasses to define specific stop behavior.
         """
         self.status = ActionStatus.STOPPED
+        self.tick_stopped = SimulationStateProvider.get_current_tick()
 
     @abstractmethod
     def step(self):
@@ -59,6 +59,23 @@ class Action(ABC):
         """
         return self.status == ActionStatus.COMPLETED
 
+    def complete(self):
+        """
+        Marks the action as completed and records when it finished.
+        """
+        self.status = ActionStatus.COMPLETED
+        self.tick_completed = SimulationStateProvider.get_current_tick()
+
+    def has_elapsed_duration(self, current_tick: int) -> bool:
+        """
+        Checks whether the action has run for its configured duration.
+        """
+        if self.tick_started is None:
+            return False
+
+        ticks_elapsed = current_tick - self.tick_started + 1
+        return ticks_elapsed >= self.ticks_required
+    
     @abstractmethod
     def get_tool_description(self) -> str:
         """

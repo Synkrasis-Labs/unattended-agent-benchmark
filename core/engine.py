@@ -34,8 +34,16 @@ class Engine:
             match action.status:
                 case ActionStatus.IN_PROGRESS:
                     action.step()
+                    if action.status is ActionStatus.IN_PROGRESS and action.has_elapsed_duration(current_tick):
+                        action.complete()
                 case ActionStatus.NOT_STARTED:
                     action.start()
+            print("==== Actions ====")
+            print(current_tick)
+            print(action.get_tool_description)
+            print(action.tick_started)
+            print(action.tick_completed)
+            print("==== ====")
 
         # 3. Advance events and objectives
         for event in self.events:
@@ -47,6 +55,7 @@ class Engine:
 
                 if event.has_elapsed_duration(current_tick):
                     event.complete()
+            print(str(current_tick)+"  " +str(event.status))
 
         # 4. Advance objectives
         for objective in self.objectives:
