@@ -92,7 +92,7 @@ class FertilizeAction(Action):
     """
     ticks_required: int = 10
     concurrency_tag = "plant_care"
-    priority=2
+    priority: int = 1
     boost: float = 5.0
     description: str = """
     Fertilize trees to boost growth.
@@ -121,7 +121,7 @@ class WaterTreesAction(Action):
     """
 
     concurrency_tag: str = "plant_care"
-    priority: int = 1
+    priority: int = 2
     ticks_required: int = 10
     water_bonus: float = 3.0
     description: str = """
