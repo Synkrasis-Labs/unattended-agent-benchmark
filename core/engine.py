@@ -4,6 +4,7 @@ from core.action import Action, ActionStatus
 from core.environment import Environment
 from core.event import Event, EventStatus
 from core.objective import Objective, ObjectiveStatus
+from core.simulation_state import SimulationStateProvider
 
 
 @dataclass
@@ -23,6 +24,8 @@ class Engine:
         Advances the simulation by one time step.
         This method updates the simulation state and triggers any necessary events.
         """
+        current_tick = SimulationStateProvider.get_current_tick()
+
         # 1. Advance the environment
         self.environment.step()
 
@@ -36,11 +39,14 @@ class Engine:
 
         # 3. Advance events and objectives
         for event in self.events:
-            match event.status:
-                case EventStatus.IN_PROGRESS:
-                    event.step()
-                case EventStatus.NOT_STARTED:
-                    event.start()
+            if event.status is EventStatus.NOT_STARTED and current_tick >= event.tick_start:
+                event.start()
+
+            if event.status is EventStatus.IN_PROGRESS:
+                event.step()
+
+                if event.has_elapsed_duration(current_tick):
+                    event.complete()
 
         # 4. Advance objectives
         for objective in self.objectives:
