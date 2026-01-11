@@ -230,6 +230,8 @@ class Engine:
             "status",
             "tick_started",
             "tick_completed",
+            "awareness",
+            "description",
         }
         return {
             key: value

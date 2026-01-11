@@ -10,6 +10,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "meta-agents-research-environments",
+    "pyyaml",
 ]
 
 [tool.hatch.build.targets.wheel]

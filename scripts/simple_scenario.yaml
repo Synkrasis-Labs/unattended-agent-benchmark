@@ -1,0 +1,46 @@
+scenario:
+  name: Simple Scenario
+  description: A simple scenario with a basic environment, events, and objectives.
+  environment: SimpleEnvironment
+  actions:
+    - name: FertilizeAction
+    - name: WaterTreesAction
+  events:
+    - name: BadWeatherEvent
+      params:
+        tick_start: 5
+        tick_duration: 3
+    - name: GoodWeatherEvent
+      params:
+        tick_start: 1
+        tick_duration: 2
+  objectives:
+    - name: GrowTreesObjective
+      params:
+        tick_start: 2
+        target_growth: 10.0
+    - name: GrowTreeQuicklyObjective
+      params:
+        tick_start: 1
+        target_growth: 15.0
+        max_ticks: 20
+  observation_policy:
+    world_keys:
+      - current_tick
+      - tree_growth
+    system_keys:
+      - running_actions
+      - events
+      - objectives
+      - last_action_feedback
+  system_prompt:
+    custom_instructions: >
+      You are an agent tasked with growing trees in a simple environment.
+      On your first turn, request Fertilize and on your second turn request the Watering action
+      even if the fertilizing is already running.
+
+runner:
+  max_ticks: 500
+  agent_delay_ticks: 0
+  agent_tick_interval: 1
+  real_time_delay_s: 0.1

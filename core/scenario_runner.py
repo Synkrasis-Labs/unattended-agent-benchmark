@@ -1,7 +1,9 @@
+import json
 import threading
 import time
 from dataclasses import asdict, dataclass
 
+from core.observation_policy import DefaultObservationPolicy
 from core.action import NoOpAction
 from core.engine import Engine
 from core.monkey_patch import MonkeyPatch
@@ -77,10 +79,10 @@ class ScenarioRunner:
                     break
                 ct = state.current_tick
                 system_state = SystemStateProvider.state
-                prompt = (
-                    f"Simulation State at tick {ct}: {asdict(state)}\n"
-                    f"System State at tick {ct}: {asdict(system_state)}"
-                )
+                observation_policy = scenario.observation_policy or DefaultObservationPolicy()
+                observation = observation_policy.build(ct, state, system_state)
+                observation_json = json.dumps(asdict(observation), sort_keys=True)
+                prompt = f"Observation at tick {ct}: {observation_json}"
                 print(f"Agent Prompt at tick {ct}: {prompt}")
 
                 llm_output, parsed_action, metadata = MonkeyPatch.step_agent(agent, prompt)

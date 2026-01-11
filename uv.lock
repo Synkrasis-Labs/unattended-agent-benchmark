@@ -3373,10 +3373,14 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "meta-agents-research-environments" },
+    { name = "pyyaml" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "meta-agents-research-environments", editable = "meta-agents-research-environments" }]
+requires-dist = [
+    { name = "meta-agents-research-environments", editable = "meta-agents-research-environments" },
+    { name = "pyyaml" },
+]
 
 [[package]]
 name = "urllib3"

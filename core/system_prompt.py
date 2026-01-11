@@ -73,6 +73,10 @@ ENVIRONMENT CHARACTERISTICS:
 - You have access to multiple applications, each with their own set of tools
 - When writing on the behalf of the user, you must impersonate the user and write as if you are the user
 
+OBSERVATION POLICY:
+- Each turn provides an Observation built from world and system state.
+- Observation contents may be filtered; do not assume omniscience.
+
 ACTION POLICY:
 - Action tools can take multiple ticks; see ticks_required in each tool's meta.
 - Actions with the same concurrency_tag conflict; only one may run at a time.
