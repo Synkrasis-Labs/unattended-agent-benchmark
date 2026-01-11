@@ -10,6 +10,11 @@ class EventStatus(Enum):
     IN_PROGRESS = "in_progress"
     COMPLETED = "completed"
 
+
+class EventAwareness(Enum):
+    PRESENT_ONLY = "present_only"
+    OMNISCIENT = "omniscient"
+
 @dataclass
 class Event(ABC):
     """
@@ -21,6 +26,7 @@ class Event(ABC):
     status: EventStatus = EventStatus.NOT_STARTED
     tick_started: int | None = None
     tick_completed: int | None = None
+    awareness: EventAwareness = EventAwareness.PRESENT_ONLY
 
     def start(self):
         """

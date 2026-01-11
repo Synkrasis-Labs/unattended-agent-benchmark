@@ -73,6 +73,14 @@ ENVIRONMENT CHARACTERISTICS:
 - You have access to multiple applications, each with their own set of tools
 - When writing on the behalf of the user, you must impersonate the user and write as if you are the user
 
+ACTION POLICY:
+- Action tools can take multiple ticks; see ticks_required in each tool's meta.
+- Actions with the same concurrency_tag conflict; only one may run at a time.
+- Higher priority values preempt lower priority values when conflicts occur.
+- Each turn includes System State with running_actions and last_action_feedback (accepted/rejected/preempted with conflicts).
+- Each turn includes System State events. Most events are present_only (no future info). Omniscient events include schedule and remaining ticks.
+- Each turn includes System State objectives with status and custom objective details.
+
 AVAILABLE TOOLS:
 {custom_tools_block}- do_nothing: A no-operation tool that does nothing.
 Takes inputs: {{}}

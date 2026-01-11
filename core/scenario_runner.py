@@ -2,10 +2,11 @@ import threading
 import time
 from dataclasses import asdict, dataclass
 
+from core.action import NoOpAction
 from core.engine import Engine
 from core.monkey_patch import MonkeyPatch
 from core.scenario import Scenario
-from core.simulation_state import SimulationStateProvider
+from core.simulation_state import SimulationStateProvider, SystemState, SystemStateProvider
 
 
 @dataclass
@@ -31,6 +32,8 @@ class ScenarioRunner:
         Runs the given scenario.
         """
         
+        SystemStateProvider.state = SystemState()
+
         # create scenario engine
         engine = Engine(
             environment=scenario.environment,
@@ -73,7 +76,11 @@ class ScenarioRunner:
                 if state is None or not running_condition(state.current_tick):
                     break
                 ct = state.current_tick
-                prompt = f"Simulation State at tick {ct}: {asdict(state)}"
+                system_state = SystemStateProvider.state
+                prompt = (
+                    f"Simulation State at tick {ct}: {asdict(state)}\n"
+                    f"System State at tick {ct}: {asdict(system_state)}"
+                )
                 print(f"Agent Prompt at tick {ct}: {prompt}")
 
                 llm_output, parsed_action, metadata = MonkeyPatch.step_agent(agent, prompt)
@@ -82,11 +89,18 @@ class ScenarioRunner:
                 if parsed_action is not None:
                     # create action instance
                     print(f"parsed_action: {parsed_action}")
-                    action_cls = scenario.action_registry.get(parsed_action.tool_name, None)
+                    action_registry = dict(scenario.action_registry)
+                    action_registry[NoOpAction.get_tool_name()] = NoOpAction
+                    action_cls = action_registry.get(parsed_action.tool_name, None)
                     if action_cls is None:
                         raise ValueError(f"Action '{parsed_action.tool_name}' not found in action registry.")
 
-                    engine.execute_action(action_cls, parsed_action.arguments)
+                    arguments = (
+                        parsed_action.arguments
+                        if isinstance(parsed_action.arguments, dict)
+                        else {}
+                    )
+                    engine.execute_action(action_cls, arguments)
 
                 lock.release()
                 for _ in range(self.config.agent_tick_interval):

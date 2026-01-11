@@ -80,9 +80,51 @@ class Action(ABC):
         ticks_elapsed = current_tick - self.tick_started + 1
         return ticks_elapsed >= self.ticks_required
     
-    @abstractmethod
-    def get_tool_description(self) -> str:
+    @classmethod
+    def get_tool_name(cls) -> str:
+        """
+        Returns the tool name exposed to the agent.
+        """
+        return cls.__name__.removesuffix("Action")
+
+    @classmethod
+    def get_tool_parameters(cls) -> dict[str, dict[str, str]]:
+        """
+        Returns action-specific parameters for the tool description.
+        """
+        return {}
+
+    @classmethod
+    def get_tool_description(cls) -> dict[str, object]:
         """
         Returns a description of the tool associated with this action.
         """
-        ...
+        description = str(getattr(cls, "description", "")).strip()
+        return {
+            "name": cls.get_tool_name(),
+            "description": description,
+            "parameters": cls.get_tool_parameters(),
+            "meta": {
+                "priority": cls.priority,
+                "concurrency_tag": cls.concurrency_tag,
+                "ticks_required": cls.ticks_required,
+            },
+        }
+
+
+@dataclass
+class NoOpAction(Action):
+    """
+    A no-operation action for agents that choose to idle.
+    """
+    description: str = "Do nothing."
+    ticks_required: int = 1
+    priority: int = 0
+    concurrency_tag: str | None = None
+
+    def step(self):
+        pass
+
+    @classmethod
+    def get_tool_name(cls) -> str:
+        return "do_nothing"
